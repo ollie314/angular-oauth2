@@ -3,15 +3,14 @@
  * Module dependencies.
  */
 
+var babel = require('gulp-babel');
 var concat = require('gulp-concat');
 var gulp = require('gulp');
 var header = require('gulp-header');
 var jshint = require('gulp-jshint');
-var karma = require('karma').server;
-var ngAnnotate = require('gulp-ng-annotate');
+var karma = require('karma').Server;
 var pkg = require('./package.json');
 var rename = require('gulp-rename');
-var to5 = require('gulp-6to5');
 var uglify = require('gulp-uglify');
 var wrapUmd = require('gulp-wrap-umd');
 
@@ -27,10 +26,24 @@ var config = {
   umd: {
     namespace: 'angularOAuth2',
     exports: 'ngModule',
-    deps: [
-      'angular',
-      { name: 'query-string', globalName: 'queryString', paramName: 'queryString' }
-    ]
+    template: `
+      (function(root, factory) {
+        if (typeof define === 'function' && define.amd) {
+          define([ "angular", "angular-cookies", "query-string" ], factory);
+        } else if (typeof exports === 'object') {
+          module.exports = factory(require("angular"), require("angular-cookies"), require("query-string"));
+        } else {
+          root.<%= namespace %> = factory(root.angular, 'ngCookies', root.queryString);
+        }
+      }(this, function(angular, ngCookies, queryString) {
+        <% if (exports) { %>
+          <%= contents %>
+          return <%= exports %>;
+        <% } else { %>
+          return <%= contents %>;
+        <% } %>
+      }));
+    `
   },
   banner: ['/**',
     ' * <%= pkg.name %> - <%= pkg.description %>',
@@ -47,8 +60,7 @@ var config = {
 
 gulp.task('scripts', ['scripts-lint'], function() {
   return gulp.src(config.src)
-    .pipe(to5({ modules: 'ignore', blacklist: ['useStrict'] }))
-    .pipe(ngAnnotate({ single_quotes: true, add: true }))
+    .pipe(babel({ modules: 'ignore', blacklist: ['useStrict'] }))
     .pipe(concat(config.name))
     .pipe(wrapUmd(config.umd))
     .pipe(uglify({
@@ -81,12 +93,14 @@ gulp.task('scripts-lint', function() {
  */
 
 gulp.task('test', ['scripts'], function() {
-  return karma.start({
+  var server = new karma({
     configFile: __dirname + '/karma.conf.js',
     singleRun: true
   }, function(code) {
     console.log('Karma has exited with code', code);
   });
+
+  return server.start();
 });
 
 /**

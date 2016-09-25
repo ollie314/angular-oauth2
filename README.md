@@ -2,6 +2,18 @@
 
 AngularJS OAuth2 authentication module written in ES6.
 
+Currently `angular-oauth2` only uses the [Resouce Owner Password Credential Grant](https://tools.ietf.org/html/rfc6749#section-4.3), i.e, using a credentials combination (username, password), we'll request an access token (using `grant_type='password'`) which, in case of success, will typically return a response such as:
+
+```
+{
+  "access_token": "foobar",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "foobiz"
+}
+```
+Internally we'll automatically store it as a cookie and it will be used in every request adding an `Authorization` header: `Authorization: 'Bearer foobar'`.
+
 ---
 
 ## Installation
@@ -16,7 +28,7 @@ Choose your preferred method:
 
 ###### 1. Download `angular-oauth2` dependencies.
 
-* [angular](https://github.com/angular/angular.js)
+* [angular](https://github.com/angular/bower-angular)
 * [angular-cookies](https://github.com/angular/bower-angular-cookies)
 * [query-string](https://github.com/sindresorhus/query-string)
 
@@ -27,7 +39,7 @@ If you're using `bower` they will be automatically downloaded upon installing th
 ```html
 <script src="<VENDOR_FOLDER>/angular/angular.min.js"></script>
 <script src="<VENDOR_FOLDER>/angular-cookies/angular-cookies.min.js"></script>
-<script src="<VENDOR_FOLDER>/query-string/query-string.min.js"></script>
+<script src="<VENDOR_FOLDER>/query-string/query-string.js"></script>
 <script src="<VENDOR_FOLDER>/angular-oauth2/dist/angular-oauth2.min.js"></script>
 ```
 
@@ -177,11 +189,10 @@ It will be awesome if you can help us evolve `angular-oauth2`. Want to help?
 
 1. [Fork it](https://github.com/seegno/angular-oauth2).
 2. `npm install`.
-3. `bower install`
-4. Do your magic.
-5. Run the tests: `gulp test`.
-6. Build: `gulp build`
-7. Create a [Pull Request](https://github.com/seegno/angular-oauth2/compare).
+3. Do your magic.
+4. Run the tests: `gulp test`.
+5. Build: `gulp build`
+6. Create a [Pull Request](https://github.com/seegno/angular-oauth2/compare).
 
 *The source files are written in ES6.*
 
